@@ -1,0 +1,23 @@
+{
+  "expressions" : [
+    {
+      "key" : "speed",
+      "value" : "5"
+    },
+    {
+      "key" : "atack",
+      "value" : "speed + 10"
+    }, 
+    {
+      "key" : "damage",
+      "value" : "atack /3 + 1"
+    }
+  ],
+  "expected" : [
+    {
+      "key" : "damage",
+      "result" : 6
+    }
+  ]
+  
+}

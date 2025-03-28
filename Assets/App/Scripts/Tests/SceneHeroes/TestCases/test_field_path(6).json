@@ -1,0 +1,74 @@
+{
+  "gridSize": {
+    "X": 5,
+    "Y": 5
+  },
+  "Obstacles": [
+    {
+      "Place": {
+        "X": 1,
+        "Y": 0
+      },
+      "ObstacleType": 1
+    },
+    {
+      "Place": {
+        "X": 3,
+        "Y": 0
+      },
+      "ObstacleType": 1
+    },
+    {
+      "Place": {
+        "X": 3,
+        "Y": 1
+      },
+      "ObstacleType": 1
+    },
+    {
+      "Place": {
+        "X": 1,
+        "Y": 2
+      },
+      "ObstacleType": 1
+    },
+    {
+      "Place": {
+        "X": 3,
+        "Y": 2
+      },
+      "ObstacleType": 1
+    },
+    {
+      "Place": {
+        "X": 1,
+        "Y": 3
+      },
+      "ObstacleType": 1
+    },
+    {
+      "Place": {
+        "X": 3,
+        "Y": 3
+      },
+      "ObstacleType": 1
+    },
+    {
+      "Place": {
+        "X": 1,
+        "Y": 4
+      },
+      "ObstacleType": 1
+    }
+  ],
+  "PlaceUnit": {
+    "X": 4,
+    "Y": 0
+  },
+  "UnitType": 4,
+  "target": {
+    "X": 0,
+    "Y": 0
+  },
+  "targetStepCount": 7
+}

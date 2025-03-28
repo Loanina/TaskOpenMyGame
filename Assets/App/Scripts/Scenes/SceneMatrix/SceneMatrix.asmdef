@@ -1,0 +1,19 @@
+{
+    "name": "SceneMatrix",
+    "rootNamespace": "",
+    "references": [
+        "GUID:240467a7c93e8764a81f8f7fa979e191",
+        "GUID:ac19551868ae1c04ea2b6c87c77b8612",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:0ca5b48cc56fb3f48b8e0427be7dace4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
