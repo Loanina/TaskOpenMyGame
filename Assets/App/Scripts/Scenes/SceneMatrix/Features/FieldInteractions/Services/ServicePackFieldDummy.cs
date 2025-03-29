@@ -110,7 +110,22 @@ namespace App.Scripts.Scenes.SceneMatrix.Features.FieldInteractions.Services
                 {
                     if (CanFit(grid, figure, currentCell, sizeX, sizeY)) // Проверяем, встанет ли фигура
                     {
-                        return figure; // Как только нашли подходящую, сразу возвращаем её
+                        if (figure != null)
+                        {
+                            bool[,] gridCopy = (bool[,])grid.Clone();
+                            
+                            var anchorCell = FindAnchorCell(figure);
+                            Vector2Int finalPosition = new Vector2Int(currentCell.x - anchorCell.x, currentCell.y - anchorCell.y);
+                            PlaceFigure(gridCopy, figure, finalPosition);
+
+                            // Проверяем, не создали ли мы дыры
+                            if (HasIsolatedEmptyCells(gridCopy, figure, finalPosition, sizeX, sizeY))
+                            {
+                                continue; // Откатываем и ищем другую фигуру
+                            }
+
+                            return figure;
+                        }
                     }
                 }
             }
@@ -118,6 +133,56 @@ namespace App.Scripts.Scenes.SceneMatrix.Features.FieldInteractions.Services
             return null; // Если ничего не нашли
         }
 
+        private bool HasIsolatedEmptyCells(bool[,] grid, ViewModelFigure figure, Vector2Int placedAt, int gridSizeX, int gridSizeY)
+        {
+            // Границы области, где проверяем дыры (вокруг фигуры +1 клетка)
+            int startX =  placedAt.x - 1;
+            if (startX < 0) startX = 0; 
+            int startY = placedAt.y - 1;
+            if (startY < 0) startY = 0;
+            int endX = Mathf.Min(gridSizeX - 1, placedAt.x + figure.Grid.Width);
+            int endY = Mathf.Min(gridSizeY - 1, placedAt.y + figure.Grid.Height);
+
+            // Проходим по этой области
+            for (int x = startX; x <= endX; x++)
+            {
+                for (int y = startY; y <= endY; y++)
+                {
+                    if (!grid[x, y]) // Нашли пустую клетку
+                    {
+                        // Проверяем, окружена ли она полностью занятыми клетками
+                        if (IsSurrounded(grid, x, y, gridSizeX, gridSizeY))
+                        {
+                            return true; // Есть дыра
+                        }
+                    }
+                }
+            }
+
+            return false; // Дыр нет
+        }
+        
+        private bool IsSurrounded(bool[,] grid, int x, int y, int width, int height)
+        {
+            int[] dx = { -1, 1, 0, 0 };
+            int[] dy = { 0, 0, -1, 1 };
+
+            foreach (var i in Enumerable.Range(0, 4))
+            {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+
+                if (nx < 0 || ny < 0 || nx >= width || ny >= height)
+                    return false; // Граница поля — не дыра
+
+                if (!grid[nx, ny])
+                    return false; // Есть хотя бы одна пустая клетка рядом — это не дыра
+            }
+
+            return true; // Все соседи заняты — клетка окружена, значит это дыра
+        }
+
+        
         private bool CanFit(bool[,] grid, ViewModelFigure figureToPlace, Vector2Int currentCell, int sizeX, int sizeY)
         {
             int figureWidth = figureToPlace.Grid.Width;
