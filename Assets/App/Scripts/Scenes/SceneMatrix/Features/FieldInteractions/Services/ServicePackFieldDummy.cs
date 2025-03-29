@@ -83,12 +83,15 @@ namespace App.Scripts.Scenes.SceneMatrix.Features.FieldInteractions.Services
                     // Если мы нашли подходящую фигуру, выставляем в наш field значения true на новых клетках занятых
                     if (figureToPlace != null)
                     {
-                        PlaceFigure(field, figureToPlace, currentCell);
+                        var anchorCell = FindAnchorCell(figureToPlace);
+                        Vector2Int finalPosition = new Vector2Int(currentCell.x - anchorCell.x, currentCell.y - anchorCell.y);
+                        PlaceFigure(field, figureToPlace, finalPosition);
                         outputPlaces.Add(new FigurePlacement
                         {
                             Id = figureToPlace.Id,
-                            Place = currentCell
-                            });
+                            Place = finalPosition
+                        });
+
                         //нужно удалить фигуру из списка фигур, горизонталь и вертикалей.
                         figures.Remove(figureToPlace);
                         horizontalGroups[figureToPlace.Grid.Width].Remove(figureToPlace);
@@ -119,9 +122,14 @@ namespace App.Scripts.Scenes.SceneMatrix.Features.FieldInteractions.Services
         {
             int figureWidth = figureToPlace.Grid.Width;
             int figureHeight = figureToPlace.Grid.Height;
+            var anchorCell = FindAnchorCell(figureToPlace); // Новая опорная точка
+
+            // Корректируем стартовую позицию, чтобы учесть опорную клетку
+            int offsetX = currentCell.x - anchorCell.x;
+            int offsetY = currentCell.y - anchorCell.y;
 
             // Проверяем, чтобы фигура не выходила за границы грида
-            if (currentCell.x + figureWidth > sizeX || currentCell.y + figureHeight > sizeY)
+            if (offsetX < 0 || offsetY < 0 || offsetX + figureWidth > sizeX || offsetY + figureHeight > sizeY)
                 return false;
 
             // Проверяем, что все клетки под фигурой свободны
@@ -129,15 +137,47 @@ namespace App.Scripts.Scenes.SceneMatrix.Features.FieldInteractions.Services
             {
                 for (int y = 0; y < figureHeight; y++)
                 {
-                    if (figureToPlace.Grid[x, y] && grid[currentCell.x + x, currentCell.y + y])
-                        return false; // Если хоть одна клетка занята — фигура не влезает
+                    if (figureToPlace.Grid[x, y]) // Если клетка фигуры занята
+                    {
+                        int posX = offsetX + x;
+                        int posY = offsetY + y;
+
+                        // Проверяем границы перед доступом к массиву!
+                        if (posX < 0 || posX >= sizeX || posY < 0 || posY >= sizeY)
+                        {
+                            return false; // Выход за границы — фигуру нельзя поставить
+                        }
+
+                        if (grid[posX, posY]) // Проверяем занятость клетки
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
 
             return true; // Всё ок, фигура встает
         }
+
         
-        private void PlaceFigure(bool[,] grid, ViewModelFigure figureToPlace, Vector2Int currentCell)
+        private Vector2Int FindAnchorCell(ViewModelFigure figureToPlace)
+        {
+            int figureWidth = figureToPlace.Grid.Width;
+            int figureHeight = figureToPlace.Grid.Height;
+
+            // Идем по фигуре с нижнего правого угла (снизу вверх, слева направо)
+            for (int y = 0; y < figureHeight; y++)
+            {
+                for (int x = 0; x < figureWidth; x++)
+                {
+                    if (figureToPlace.Grid[x, y]) return new Vector2Int(x, y);
+                }
+            }
+            return Vector2Int.zero;
+        }
+
+        
+        private void PlaceFigure(bool[,] grid, ViewModelFigure figureToPlace, Vector2Int cellToPlace)
         {
             int figureWidth = figureToPlace.Grid.Width;
             int figureHeight = figureToPlace.Grid.Height;
@@ -148,11 +188,12 @@ namespace App.Scripts.Scenes.SceneMatrix.Features.FieldInteractions.Services
                 {
                     if (figureToPlace.Grid[x, y]) // Если в фигуре есть блок
                     {
-                        grid[currentCell.x + x, currentCell.y + y] = true; // Помечаем клетку как занятую
+                        grid[cellToPlace.x + x, cellToPlace.y + y] = true; // Помечаем клетку как занятую
                     }
                 }
             }
         }
+
         
         private List<ViewModelFigure> SortFiguresByOccupiedCells(List<ViewModelFigure> figures)
         {
